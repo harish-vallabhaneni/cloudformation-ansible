@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+      IntVPCNameUSEast1: "{{IntVPCNameUSEast1}}"
+      IntVPCCIDRBlockUSEast1: "{{IntVPCCIDRBlockUSEast1}}"
+      EnvironmentParameter: "{{EnvironmentParameter}}"
+      IntInstanceTypeParameter: "{{IntInstanceTypeParameter}}"
+      IntKeyNameParameter: "{{IntKeyNameParameter}}"
+      IntSSHLocationParameter: "{{IntSSHLocationParameter}}"
+      IntProjectTrackerInstanceNameParameter: "{{IntProjectTrackerInstanceNameParameter}}"
+      IntApiCreatorInstanceNameParameter: "{{IntApiCreatorInstanceNameParameter}}"
+      IntPublicSubnetUSEast1aCIDRBlock: "{{IntPublicSubnetUSEast1aCIDRBlock}}"
+      IntPublicSubnetUSEast1bCIDRBlock: "{{IntPublicSubnetUSEast1bCIDRBlock}}"
+
+
+
+  tasks:
+      - name: Run my Int Env CloudFormation Stack
+        cloudformation:
+          stack_name: IntEnvStack
+          region: us-east-1
+          state: present
+          template_url: https://s3.amazonaws.com/qpair-cloudformation/template_bk.json
+          template_parameters:
+            IntVPCNameUSEast1: "{{IntVPCNameUSEast1}}"
+            IntVPCCIDRBlockUSEast1: "{{IntVPCCIDRBlockUSEast1}}"
+            EnvironmentParameter: "{{EnvironmentParameter}}"
+            IntInstanceTypeParameter: "{{IntInstanceTypeParameter}}"
+            IntKeyNameParameter: "{{IntKeyNameParameter}}"
+            IntSSHLocationParameter: "{{IntSSHLocationParameter}}"
+            IntProjectTrackerInstanceNameParameter: "{{IntProjectTrackerInstanceNameParameter}}"
+            IntApiCreatorInstanceNameParameter: "{{IntApiCreatorInstanceNameParameter}}"
+            IntPublicSubnetUSEast1aCIDRBlock: "{{IntPublicSubnetUSEast1aCIDRBlock}}"
+            IntPublicSubnetUSEast1bCIDRBlock: "{{IntPublicSubnetUSEast1bCIDRBlock}}"
+        register: my_int_env_stack

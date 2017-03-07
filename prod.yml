@@ -1,0 +1,55 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+      ProdVPCNameUSEast1: "{{ProdVPCNameUSEast1}}"
+      ProdVPCCIDRBlockUSEast1: "{{ProdVPCCIDRBlockUSEast1}}"
+      EnvironmentParameter: "{{EnvironmentParameter}}"
+      ProdInstanceTypeParameter: "{{ProdInstanceTypeParameter}}"
+      ProdKeyNameParameter: "{{ProdKeyNameParameter}}"
+      ProdSSHLocationParameter: "{{ProdSSHLocationParameter}}"
+      ProdProjectTrackerInstanceNameParameter: "{{ProdProjectTrackerInstanceNameParameter}}"
+      ProdApiCreatorInstanceNameParameter: "{{ProdApiCreatorInstanceNameParameter}}"
+      ProdPublicSubnetUSEast1aCIDRBlock: "{{ProdPublicSubnetUSEast1aCIDRBlock}}"
+      ProdPrivateSubnetUSEast1aCIDRBlock: "{{ProdPrivateSubnetUSEast1aCIDRBlock}}"
+      ProdPublicSubnetUSEast1bCIDRBlock: "{{ProdPublicSubnetUSEast1bCIDRBlock}}"
+      ProdPrivateSubnetUSEast1bCIDRBlock: "{{ProdPrivateSubnetUSEast1bCIDRBlock}}"
+      ProdPublicSubnetUSEast1cCIDRBlock: "{{ProdPublicSubnetUSEast1cCIDRBlock}}"
+      ProdPrivateSubnetUSEast1cCIDRBlock: "{{ProdPrivateSubnetUSEast1cCIDRBlock}}"
+      ProdPublicSubnetUSEast1dCIDRBlock: "{{ProdPublicSubnetUSEast1dCIDRBlock}}"
+      ProdPrivateSubnetUSEast1dCIDRBlock: "{{ProdPrivateSubnetUSEast1dCIDRBlock}}"
+      ProdPublicSubnetUSEast1eCIDRBlock: "{{ProdPublicSubnetUSEast1eCIDRBlock}}"
+      ProdPrivateSubnetUSEast1eCIDRBlock: "{{ProdPrivateSubnetUSEast1eCIDRBlock}}"
+      ProdMongoInstanceNameParameter: "{{ProdMongoInstanceNameParameter}}"
+
+
+  tasks:
+      - name: Run my Prod Env CloudFormation Stack
+        cloudformation:
+          stack_name: ProdEnvStack
+          region: us-east-1
+          state: present
+          template_url: https://s3.amazonaws.com/qpair-cloudformation/template_bk.json
+          template_parameters:
+            ProdVPCNameUSEast1: "{{ProdVPCNameUSEast1}}"
+            ProdVPCCIDRBlockUSEast1: "{{ProdVPCCIDRBlockUSEast1}}"
+            EnvironmentParameter: "{{EnvironmentParameter}}"
+            ProdInstanceTypeParameter: "{{ProdInstanceTypeParameter}}"
+            ProdKeyNameParameter: "{{ProdKeyNameParameter}}"
+            ProdSSHLocationParameter: "{{ProdSSHLocationParameter}}"
+            ProdProjectTrackerInstanceNameParameter: "{{ProdProjectTrackerInstanceNameParameter}}"
+            ProdApiCreatorInstanceNameParameter: "{{ProdApiCreatorInstanceNameParameter}}"
+            ProdPublicSubnetUSEast1aCIDRBlock: "{{ProdPublicSubnetUSEast1aCIDRBlock}}"
+            ProdPrivateSubnetUSEast1aCIDRBlock: "{{ProdPrivateSubnetUSEast1aCIDRBlock}}"
+            ProdPublicSubnetUSEast1bCIDRBlock: "{{ProdPublicSubnetUSEast1bCIDRBlock}}"
+            ProdPrivateSubnetUSEast1bCIDRBlock: "{{ProdPrivateSubnetUSEast1bCIDRBlock}}"
+            ProdPublicSubnetUSEast1cCIDRBlock: "{{ProdPublicSubnetUSEast1cCIDRBlock}}"
+            ProdPrivateSubnetUSEast1cCIDRBlock: "{{ProdPrivateSubnetUSEast1cCIDRBlock}}"
+            ProdPublicSubnetUSEast1dCIDRBlock: "{{ProdPublicSubnetUSEast1dCIDRBlock}}"
+            ProdPrivateSubnetUSEast1dCIDRBlock: "{{ProdPrivateSubnetUSEast1dCIDRBlock}}"
+            ProdPublicSubnetUSEast1eCIDRBlock: "{{ProdPublicSubnetUSEast1eCIDRBlock}}"
+            ProdPrivateSubnetUSEast1eCIDRBlock: "{{ProdPrivateSubnetUSEast1eCIDRBlock}}"
+            ProdMongoInstanceNameParameter: "{{ProdMongoInstanceNameParameter}}"
+        register: my_prod_env_stack

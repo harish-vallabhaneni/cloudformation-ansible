@@ -1,0 +1,12 @@
+{
+	  "IntVPCNameUSEast1": "IntVPC",
+      "IntVPCCIDRBlockUSEast1": "10.0.0.0/16",
+      "EnvironmentParameter": "int",
+      "IntInstanceTypeParameter": "t2.micro",
+      "IntKeyNameParameter": "17minds",
+      "IntSSHLocationParameter": "0.0.0.0/0",
+      "IntProjectTrackerInstanceNameParameter": "IntEnvProjecTracker",
+      "IntApiCreatorInstanceNameParameter": "IntEnvApiCreator",
+      "IntPublicSubnetUSEast1aCIDRBlock": "10.0.0.0/22",
+      "IntPublicSubnetUSEast1bCIDRBlock": "10.0.8.0/22"
+}

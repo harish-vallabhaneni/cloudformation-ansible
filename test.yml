@@ -1,0 +1,55 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+      TestVPCNameUSEast1: "{{TestVPCNameUSEast1}}"
+      TestVPCCIDRBlockUSEast1: "{{TestVPCCIDRBlockUSEast1}}"
+      EnvironmentParameter: "{{EnvironmentParameter}}"
+      TestInstanceTypeParameter: "{{TestInstanceTypeParameter}}"
+      TestKeyNameParameter: "{{TestKeyNameParameter}}"
+      TestSSHLocationParameter: "{{TestSSHLocationParameter}}"
+      TestProjectTrackerInstanceNameParameter: "{{TestProjectTrackerInstanceNameParameter}}"
+      TestApiCreatorInstanceNameParameter: "{{TestApiCreatorInstanceNameParameter}}"
+      TestPublicSubnetUSEast1aCIDRBlock: "{{TestPublicSubnetUSEast1aCIDRBlock}}"
+      TestPrivateSubnetUSEast1aCIDRBlock: "{{TestPrivateSubnetUSEast1aCIDRBlock}}"
+      TestPublicSubnetUSEast1bCIDRBlock: "{{TestPublicSubnetUSEast1bCIDRBlock}}"
+      TestPrivateSubnetUSEast1bCIDRBlock: "{{TestPrivateSubnetUSEast1bCIDRBlock}}"
+      TestPublicSubnetUSEast1cCIDRBlock: "{{TestPublicSubnetUSEast1cCIDRBlock}}"
+      TestPrivateSubnetUSEast1cCIDRBlock: "{{TestPrivateSubnetUSEast1cCIDRBlock}}"
+      TestPublicSubnetUSEast1dCIDRBlock: "{{TestPublicSubnetUSEast1dCIDRBlock}}"
+      TestPrivateSubnetUSEast1dCIDRBlock: "{{TestPrivateSubnetUSEast1dCIDRBlock}}"
+      TestPublicSubnetUSEast1eCIDRBlock: "{{TestPublicSubnetUSEast1eCIDRBlock}}"
+      TestPrivateSubnetUSEast1eCIDRBlock: "{{TestPrivateSubnetUSEast1eCIDRBlock}}"
+      TestMongoInstanceNameParameter: "{{TestMongoInstanceNameParameter}}"
+
+
+  tasks:
+      - name: Run my Test Env CloudFormation Stack
+        cloudformation:
+          stack_name: TestEnvStack
+          region: us-east-1
+          state: present
+          template_url: https://s3.amazonaws.com/qpair-cloudformation/template_bk.json
+          template_parameters:
+            TestVPCNameUSEast1: "{{TestVPCNameUSEast1}}"
+            TestVPCCIDRBlockUSEast1: "{{TestVPCCIDRBlockUSEast1}}"
+            EnvironmentParameter: "{{EnvironmentParameter}}"
+            TestInstanceTypeParameter: "{{TestInstanceTypeParameter}}"
+            TestKeyNameParameter: "{{TestKeyNameParameter}}"
+            TestSSHLocationParameter: "{{TestSSHLocationParameter}}"
+            TestProjectTrackerInstanceNameParameter: "{{TestProjectTrackerInstanceNameParameter}}"
+            TestApiCreatorInstanceNameParameter: "{{TestApiCreatorInstanceNameParameter}}"
+            TestPublicSubnetUSEast1aCIDRBlock: "{{TestPublicSubnetUSEast1aCIDRBlock}}"
+            TestPrivateSubnetUSEast1aCIDRBlock: "{{TestPrivateSubnetUSEast1aCIDRBlock}}"
+            TestPublicSubnetUSEast1bCIDRBlock: "{{TestPublicSubnetUSEast1bCIDRBlock}}"
+            TestPrivateSubnetUSEast1bCIDRBlock: "{{TestPrivateSubnetUSEast1bCIDRBlock}}"
+            TestPublicSubnetUSEast1cCIDRBlock: "{{TestPublicSubnetUSEast1cCIDRBlock}}"
+            TestPrivateSubnetUSEast1cCIDRBlock: "{{TestPrivateSubnetUSEast1cCIDRBlock}}"
+            TestPublicSubnetUSEast1dCIDRBlock: "{{TestPublicSubnetUSEast1dCIDRBlock}}"
+            TestPrivateSubnetUSEast1dCIDRBlock: "{{TestPrivateSubnetUSEast1dCIDRBlock}}"
+            TestPublicSubnetUSEast1eCIDRBlock: "{{TestPublicSubnetUSEast1eCIDRBlock}}"
+            TestPrivateSubnetUSEast1eCIDRBlock: "{{TestPrivateSubnetUSEast1eCIDRBlock}}"
+            TestMongoInstanceNameParameter: "{{TestMongoInstanceNameParameter}}"
+        register: my_test_env_stack

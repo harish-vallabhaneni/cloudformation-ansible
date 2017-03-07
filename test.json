@@ -1,0 +1,21 @@
+{
+      "TestVPCNameUSEast1": "TestVPC",
+      "TestVPCCIDRBlockUSEast1": "11.0.0.0/16",
+      "EnvironmentParameter": "test",
+      "TestInstanceTypeParameter": "m2.xlarge",
+      "TestKeyNameParameter": "17minds",
+      "TestSSHLocationParameter": "0.0.0.0/0",
+      "TestProjectTrackerInstanceNameParameter": "TestEnvProjecTracker",
+      "TestApiCreatorInstanceNameParameter": "TestEnvApiCreator",
+      "TestPublicSubnetUSEast1aCIDRBlock": "11.0.0.0/22",
+      "TestPrivateSubnetUSEast1aCIDRBlock": "11.0.4.0/22",
+      "TestPublicSubnetUSEast1bCIDRBlock": "11.0.8.0/22",
+      "TestPrivateSubnetUSEast1bCIDRBlock": "11.0.12.0/22",
+      "TestPublicSubnetUSEast1cCIDRBlock": "11.0.16.0/22",
+      "TestPrivateSubnetUSEast1cCIDRBlock": "11.0.20.0/22",
+      "TestPublicSubnetUSEast1dCIDRBlock": "11.0.24.0/22",
+      "TestPrivateSubnetUSEast1dCIDRBlock": "11.0.28.0/22",
+      "TestPublicSubnetUSEast1eCIDRBlock": "11.0.32.0/22",
+      "TestPrivateSubnetUSEast1eCIDRBlock": "11.0.36.0/22",
+      "TestMongoInstanceNameParameter": "TestEnvMongo"
+}

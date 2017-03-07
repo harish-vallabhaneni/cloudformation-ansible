@@ -1,0 +1,3325 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Template for IdeaBox AWS Resources which uses R53, ELB, ASG, EC2, SG, VPC",
+	"Parameters": {
+
+
+		"IntVPCNameUSEast1":{
+			"Type": "String",
+			"Description": "Name of the VPC",
+			"Default": "IntEnvVPC",
+			"AllowedPattern": "[a-zA-Z_]*",
+			"ConstraintDescription": "must be of this values [a-zA-Z_]"
+		},
+		"TestVPCNameUSEast1":{
+			"Type": "String",
+			"Description": "Name of the VPC",
+			"Default": "TestEnvVPC",
+			"AllowedPattern": "[a-zA-Z_]*",
+			"ConstraintDescription": "must be of this values [a-zA-Z_]"
+		},
+		"ProdVPCNameUSEast1":{
+			"Type": "String",
+			"Description": "Name of the VPC",
+			"Default": "ProdEnvVPC",
+			"AllowedPattern": "[a-zA-Z_]*",
+			"ConstraintDescription": "must be of this values [a-zA-Z_]"
+		},
+
+
+
+
+
+
+		"IntVPCCIDRBlockUSEast1": {
+			"Description": " The IP address range that can be used for Int VPC CidrBlock",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "10.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"TestVPCCIDRBlockUSEast1": {
+			"Description": " The IP address range that can be used for Test VPC CidrBlock",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdVPCCIDRBlockUSEast1": {
+			"Description": " The IP address range that can be used for Prod VPC CidrBlock",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+
+		"EnvironmentParameter":{
+			"Type": "String",
+			"Description": "Environment to deploy CFN Stack",
+			"Default": "int",
+			"AllowedValues": ["int","test","prod"],
+			"ConstraintDescription": "must be int or test or prod"
+		},
+
+
+
+
+		"IntInstanceTypeParameter": {
+			"Type": "String",
+			"Description": "WebServer EC2 instance type",
+			"Default": "t2.micro",
+			"AllowedValues": [
+				"t1.micro",
+				"t2.micro",
+				"t2.small",
+				"t2.medium"
+				],
+			"ConstraintDescription": "must be a valid EC2 instance type."
+		},
+		"TestInstanceTypeParameter": {
+			"Type": "String",
+			"Description": "WebServer EC2 instance type",
+			"Default": "m2.xlarge",
+			"AllowedValues": [
+				"m1.small",
+				"m1.medium",
+				"m1.large",
+				"m1.xlarge",
+				"m2.xlarge",
+				"m2.2xlarge",
+				"m2.4xlarge",
+				"m3.medium",
+				"m3.large",
+				"m3.xlarge",
+				"m3.2xlarge",
+				"c1.medium",
+				"c1.xlarge",
+				"c3.large",
+				"c3.xlarge",
+				"c3.2xlarge",
+				"c3.4xlarge",
+				"c3.8xlarge",
+				"c4.large",
+				"c4.xlarge",
+				"c4.2xlarge",
+				"c4.4xlarge",
+				"c4.8xlarge",
+				"g2.2xlarge",
+				"r3.large",
+				"r3.xlarge",
+				"r3.2xlarge",
+				"r3.4xlarge",
+				"r3.8xlarge",
+				"i2.xlarge",
+				"i2.2xlarge",
+				"i2.4xlarge",
+				"i2.8xlarge",
+				"d2.xlarge",
+				"d2.2xlarge",
+				"d2.4xlarge",
+				"d2.8xlarge",
+				"hi1.4xlarge",
+				"hs1.8xlarge",
+				"cr1.8xlarge",
+				"cc2.8xlarge",
+				"cg1.4xlarge"
+				],
+			"ConstraintDescription": "must be a valid EC2 instance type."
+		},
+		"ProdInstanceTypeParameter": {
+			"Type": "String",
+			"Description": "WebServer EC2 instance type",
+			"Default": "c4.large",
+			"AllowedValues": [
+				"t1.micro",
+				"t2.micro",
+				"t2.small",
+				"t2.medium",
+				"m1.small",
+				"m1.medium",
+				"m1.large",
+				"m1.xlarge",
+				"m2.xlarge",
+				"m2.2xlarge",
+				"m2.4xlarge",
+				"m3.medium",
+				"m3.large",
+				"m3.xlarge",
+				"m3.2xlarge",
+				"c1.medium",
+				"c1.xlarge",
+				"c3.large",
+				"c3.xlarge",
+				"c3.2xlarge",
+				"c3.4xlarge",
+				"c3.8xlarge",
+				"c4.large",
+				"c4.xlarge",
+				"c4.2xlarge",
+				"c4.4xlarge",
+				"c4.8xlarge",
+				"g2.2xlarge",
+				"r3.large",
+				"r3.xlarge",
+				"r3.2xlarge",
+				"r3.4xlarge",
+				"r3.8xlarge",
+				"i2.xlarge",
+				"i2.2xlarge",
+				"i2.4xlarge",
+				"i2.8xlarge",
+				"d2.xlarge",
+				"d2.2xlarge",
+				"d2.4xlarge",
+				"d2.8xlarge",
+				"hi1.4xlarge",
+				"hs1.8xlarge",
+				"cr1.8xlarge",
+				"cc2.8xlarge",
+				"cg1.4xlarge"
+				],
+			"ConstraintDescription": "must be a valid EC2 instance type."
+		},
+
+
+
+
+
+
+
+
+
+
+		"IntKeyNameParameter":{
+			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance.",
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Default":"17minds",
+			"ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+		},
+		"TestKeyNameParameter":{
+			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance.",
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Default":"17minds",
+			"ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+		},
+		"ProdKeyNameParameter":{
+			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance.",
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Default":"17minds",
+			"ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+		},
+
+
+
+
+
+
+
+
+
+		"IntSSHLocationParameter": {
+			"Description": " The IP address range that can be used access the web server using SSH.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "10.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"TestSSHLocationParameter": {
+			"Description": " The IP address range that can be used access the web server using SSH.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdSSHLocationParameter": {
+			"Description": " The IP address range that can be used access the web server using SSH.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.0.0/16",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerInstanceNameParameter": {
+			"Type": "String",
+			"Default": "IntProjectTrackerInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+		"TestProjectTrackerInstanceNameParameter": {
+			"Type": "String",
+			"Default": "TestProjectTrackerInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+		"ProdProjectTrackerInstanceNameParameter": {
+			"Type": "String",
+			"Default": "ProdProjectTrackerInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorInstanceNameParameter": {
+			"Type": "String",
+			"Default": "IntApiCreatorInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+		"TestApiCreatorInstanceNameParameter": {
+			"Type": "String",
+			"Default": "TestApiCreatorInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+		"ProdApiCreatorInstanceNameParameter": {
+			"Type": "String",
+			"Default": "ProdApiCreatorInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+
+
+
+
+
+
+
+
+		"IntPublicSubnetUSEast1aCIDRBlock": {
+			"Description": " The IP address range for IntPublicSubnetUSEast1aCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "10.0.0.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"TestPublicSubnetUSEast1aCIDRBlock": {
+			"Description": " The IP address range for TestPublicSubnetUSEast1aCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.0.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPublicSubnetUSEast1aCIDRBlock": {
+			"Description": " The IP address range for ProdPublicSubnetUSEast1aCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.0.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1aCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1aCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.4.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPrivateSubnetUSEast1aCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1aCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.4.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+
+
+
+
+		"IntPublicSubnetUSEast1bCIDRBlock": {
+			"Description": " The IP address range for IntPublicSubnetUSEast1bCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "10.0.8.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"TestPublicSubnetUSEast1bCIDRBlock": {
+			"Description": " The IP address range for TestPublicSubnetUSEast1bCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.8.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPublicSubnetUSEast1bCIDRBlock": {
+			"Description": " The IP address range for ProdPublicSubnetUSEast1bCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.8.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1bCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1bCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.12.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPrivateSubnetUSEast1bCIDRBlock": {
+			"Description": " The IP address range for ProdPrivateSubnetUSEast1bCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.12.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+		"TestPublicSubnetUSEast1cCIDRBlock": {
+			"Description": " The IP address range for TestPublicSubnetUSEast1cCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.16.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPublicSubnetUSEast1cCIDRBlock": {
+			"Description": " The IP address range for ProdPublicSubnetUSEast1cCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.16.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+		"TestPrivateSubnetUSEast1cCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1cCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.20.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPrivateSubnetUSEast1cCIDRBlock": {
+			"Description": " The IP address range for ProdPrivateSubnetUSEast1cCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.20.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+		"TestPublicSubnetUSEast1dCIDRBlock": {
+			"Description": " The IP address range for TestPublicSubnetUSEast1dCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.24.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPublicSubnetUSEast1dCIDRBlock": {
+			"Description": " The IP address range for ProdPublicSubnetUSEast1dCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.24.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+		"TestPrivateSubnetUSEast1dCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1dCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.28.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPrivateSubnetUSEast1dCIDRBlock": {
+			"Description": " The IP address range for ProdPrivateSubnetUSEast1dCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.28.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+		"TestPublicSubnetUSEast1eCIDRBlock": {
+			"Description": " The IP address range for TestPublicSubnetUSEast1eCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.32.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPublicSubnetUSEast1eCIDRBlock": {
+			"Description": " The IP address range for ProdPublicSubnetUSEast1eCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.32.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+		"TestPrivateSubnetUSEast1eCIDRBlock": {
+			"Description": " The IP address range for TestPrivateSubnetUSEast1eCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "11.0.36.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+		"ProdPrivateSubnetUSEast1eCIDRBlock": {
+			"Description": " The IP address range for ProdPrivateSubnetUSEast1eCIDRBlock.",
+			"Type": "String",
+			"MinLength": "9",
+			"MaxLength": "18",
+			"Default": "12.0.36.0/22",
+			"AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+			"ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestMongoInstanceNameParameter": {
+			"Type": "String",
+			"Default": "TestMongoInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		},
+		"ProdMongoInstanceNameParameter": {
+			"Type": "String",
+			"Default": "ProdMongoInstance",
+			"AllowedPattern": "[a-zA-Z_0-9]*",
+			"ConstraintDescription": "enter an instance name. default is test and AllowedPattern is [a-zA-Z_0-9]"
+		}
+	},
+
+
+
+
+
+
+	"Mappings":{
+		"AWSInstanceType2Arch": {
+			"t1.micro": {
+				"Arch": "PV64"
+			},
+			"t2.micro": {
+				"Arch": "HVM64"
+			},
+			"t2.small": {
+				"Arch": "HVM64"
+			},
+			"t2.medium": {
+				"Arch": "HVM64"
+			},
+			"m1.small": {
+				"Arch": "PV64"
+			},
+			"m1.medium": {
+				"Arch": "PV64"
+			},
+			"m1.large": {
+				"Arch": "PV64"
+			},
+			"m1.xlarge": {
+				"Arch": "PV64"
+			},
+			"m2.xlarge": {
+				"Arch": "PV64"
+			},
+			"m2.2xlarge": {
+				"Arch": "PV64"
+			},
+			"m2.4xlarge": {
+				"Arch": "PV64"
+			},
+			"m3.medium": {
+				"Arch": "HVM64"
+			},
+			"m3.large": {
+				"Arch": "HVM64"
+			},
+			"m3.xlarge": {
+				"Arch": "HVM64"
+			},
+			"m3.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"c1.medium": {
+				"Arch": "PV64"
+			},
+			"c1.xlarge": {
+				"Arch": "PV64"
+			},
+			"c3.large": {
+				"Arch": "HVM64"
+			},
+			"c3.xlarge": {
+				"Arch": "HVM64"
+			},
+			"c3.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"c3.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"c3.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"c4.large": {
+				"Arch": "HVM64"
+			},
+			"c4.xlarge": {
+				"Arch": "HVM64"
+			},
+			"c4.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"c4.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"c4.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"g2.2xlarge": {
+				"Arch": "HVMG2"
+			},
+			"r3.large": {
+				"Arch": "HVM64"
+			},
+			"r3.xlarge": {
+				"Arch": "HVM64"
+			},
+			"r3.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"r3.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"r3.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"i2.xlarge": {
+				"Arch": "HVM64"
+			},
+			"i2.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"i2.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"i2.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"d2.xlarge": {
+				"Arch": "HVM64"
+			},
+			"d2.2xlarge": {
+				"Arch": "HVM64"
+			},
+			"d2.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"d2.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"hi1.4xlarge": {
+				"Arch": "HVM64"
+			},
+			"hs1.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"cr1.8xlarge": {
+				"Arch": "HVM64"
+			},
+			"cc2.8xlarge": {
+				"Arch": "HVM64"
+			}
+		},
+		"AWSRegionArch2AMI": {
+			"us-east-1": {
+				"PV64": "ami-1ccae774",
+				"HVM64": "ami-0b33d91d",
+				"HVMG2": "ami-8c6b40e4"
+				},
+			"us-west-2": {
+				"PV64": "ami-ff527ecf",
+				"HVM64": "ami-e7527ed7",
+				"HVMG2": "ami-abbe919b"
+				},
+			"us-west-1": {
+				"PV64": "ami-d514f291",
+				"HVM64": "ami-d114f295",
+				"HVMG2": "ami-f31ffeb7"
+				},
+			"eu-west-1": {
+				"PV64": "ami-bf0897c8",
+				"HVM64": "ami-a10897d6",
+				"HVMG2": "ami-d5bc24a2"
+				},
+			"eu-central-1": {
+				"PV64": "ami-ac221fb1",
+				"HVM64": "ami-a8221fb5",
+				"HVMG2": "ami-7cd2ef61"
+				},
+			"ap-northeast-1": {
+				"PV64": "ami-27f90e27",
+				"HVM64": "ami-cbf90ecb",
+				"HVMG2": "ami-6318e863"
+				},
+			"ap-southeast-1": {
+				"PV64": "ami-acd9e8fe",
+				"HVM64": "ami-68d8e93a",
+				"HVMG2": "ami-3807376a"
+				},
+			"ap-southeast-2": {
+				"PV64": "ami-ff9cecc5",
+				"HVM64": "ami-fd9cecc7",
+				"HVMG2": "ami-89790ab3"
+				},
+			"sa-east-1": {
+				"PV64": "ami-bb2890a6",
+				"HVM64": "ami-b52890a8",
+				"HVMG2": "NOT_SUPPORTED"
+				},
+			"cn-north-1": {
+				"PV64": "ami-fa39abc3",
+				"HVM64": "ami-f239abcb",
+				"HVMG2": "NOT_SUPPORTED"
+			}
+		}
+	},
+
+
+
+	"Conditions": {
+		"RegionUSEast1": { "Fn::Equals": [ { "Ref": "AWS::Region" }, "us-east-1" ] },
+		"RegionUSWest1": { "Fn::Equals": [ { "Ref": "AWS::Region"}, "us-west-1" ] },
+		"IntEnv": { "Fn::Equals": [ { "Ref": "EnvironmentParameter"}, "int" ] },
+		"TestEnv": { "Fn::Equals": [ { "Ref": "EnvironmentParameter"}, "test" ] },
+		"ProdEnv": { "Fn::Equals": [ { "Ref": "EnvironmentParameter"}, "prod" ] },
+		"USEast1AndIntEnv": { "Fn::And": [{"Condition":"RegionUSEast1"},{"Condition":"IntEnv"}]},
+		"USEast1AndTestEnv": { "Fn::And": [{"Condition":"RegionUSEast1"},{"Condition":"TestEnv"}]},
+		"USEast1AndProdEnv": { "Fn::And": [{"Condition":"RegionUSEast1"},{"Condition":"ProdEnv"}]}		
+	},
+
+
+
+
+
+	"Resources": {
+		"IntVPCUSEast1":{
+			"Type": "AWS::EC2::VPC",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"CidrBlock": {"Ref":"IntVPCCIDRBlockUSEast1"},
+				"EnableDnsSupport": true,
+				"EnableDnsHostnames": true,
+				"Tags": [{"Key": "Name","Value": { "Ref": "IntVPCNameUSEast1" }}]
+			}
+		},
+		"TestVPCUSEast1":{
+			"Type": "AWS::EC2::VPC",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"CidrBlock": {"Ref":"TestVPCCIDRBlockUSEast1"},
+				"EnableDnsSupport": true,
+				"EnableDnsHostnames": true,
+				"Tags": [{"Key": "Name","Value": { "Ref": "TestVPCNameUSEast1" }}]
+			}
+		},
+		"ProdVPCUSEast1":{
+			"Type": "AWS::EC2::VPC",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"CidrBlock": {"Ref":"ProdVPCCIDRBlockUSEast1"},
+				"EnableDnsSupport": true,
+				"EnableDnsHostnames": true,
+				"Tags": [{"Key": "Name","Value": { "Ref": "ProdVPCNameUSEast1" }}]
+			}
+		},
+
+
+
+
+
+
+
+		"IntPublicSubnetUSEast1a":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": { "Ref": "IntVPCUSEast1" },
+				"CidrBlock": { "Ref": "IntPublicSubnetUSEast1aCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"IntPublicSubnetUSEast1a"}]
+			}
+		},
+		"TestPublicSubnetUSEast1a":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPublicSubnetUSEast1aCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"TestPublicSubnetUSEast1a"}]
+			}
+		},
+		"ProdPublicSubnetUSEast1a":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPublicSubnetUSEast1aCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"ProdPublicSubnetUSEast1a"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1a":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1aCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"TestPrivateSubnetUSEast1a"}]
+			}
+		},
+		"ProdPrivateSubnetUSEast1a":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPrivateSubnetUSEast1aCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"ProdPrivateSubnetUSEast1a"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntPublicSubnetUSEast1b":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": { "Ref": "IntVPCUSEast1" },
+				"CidrBlock": { "Ref": "IntPublicSubnetUSEast1bCIDRBlock" },
+				"AvailabilityZone": "us-east-1b",
+				"Tags": [{"Key":"Name", "Value":"IntPublicSubnetUSEast1b"}]
+			}
+		},
+		"TestPublicSubnetUSEast1b":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPublicSubnetUSEast1bCIDRBlock" },
+				"AvailabilityZone": "us-east-1b",
+				"Tags": [{"Key":"Name", "Value":"TestPublicSubnetUSEast1b"}]
+			}
+		},
+		"ProdPublicSubnetUSEast1b":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPublicSubnetUSEast1bCIDRBlock" },
+				"AvailabilityZone": "us-east-1b",
+				"Tags": [{"Key":"Name", "Value":"ProdPublicSubnetUSEast1b"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1b":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1bCIDRBlock" },
+				"AvailabilityZone": "us-east-1b",
+				"Tags": [{"Key":"Name", "Value":"TestPrivateSubnetUSEast1b"}]
+			}
+		},
+		"ProdPrivateSubnetUSEast1b":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1bCIDRBlock" },
+				"AvailabilityZone": "us-east-1b",
+				"Tags": [{"Key":"Name", "Value":"ProdPrivateSubnetUSEast1b"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestPublicSubnetUSEast1c":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPublicSubnetUSEast1cCIDRBlock" },
+				"AvailabilityZone": "us-east-1c",
+				"Tags": [{"Key":"Name", "Value":"TestPublicSubnetUSEast1c"}]
+			}
+		},
+		"ProdPublicSubnetUSEast1c":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPublicSubnetUSEast1cCIDRBlock" },
+				"AvailabilityZone": "us-east-1c",
+				"Tags": [{"Key":"Name", "Value":"ProdPublicSubnetUSEast1c"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1c":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1cCIDRBlock" },
+				"AvailabilityZone": "us-east-1c",
+				"Tags": [{"Key":"Name", "Value":"TestPrivateSubnetUSEast1c"}]
+			}
+		},
+		"ProdPrivateSubnetUSEast1c":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPrivateSubnetUSEast1cCIDRBlock" },
+				"AvailabilityZone": "us-east-1c",
+				"Tags": [{"Key":"Name", "Value":"ProdPrivateSubnetUSEast1c"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestPublicSubnetUSEast1d":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPublicSubnetUSEast1dCIDRBlock" },
+				"AvailabilityZone": "us-east-1d",
+				"Tags": [{"Key":"Name", "Value":"TestPublicSubnetUSEast1d"}]
+			}
+		},
+		"ProdPublicSubnetUSEast1d":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPublicSubnetUSEast1dCIDRBlock" },
+				"AvailabilityZone": "us-east-1d",
+				"Tags": [{"Key":"Name", "Value":"ProdPublicSubnetUSEast1d"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1d":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1dCIDRBlock" },
+				"AvailabilityZone": "us-east-1d",
+				"Tags": [{"Key":"Name", "Value":"TestPrivateSubnetUSEast1d"}]
+			}
+		},
+		"ProdPrivateSubnetUSEast1d":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPrivateSubnetUSEast1dCIDRBlock" },
+				"AvailabilityZone": "us-east-1d",
+				"Tags": [{"Key":"Name", "Value":"ProdPrivateSubnetUSEast1d"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"TestPublicSubnetUSEast1e":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPublicSubnetUSEast1eCIDRBlock" },
+				"AvailabilityZone": "us-east-1e",
+				"Tags": [{"Key":"Name", "Value":"TestPublicSubnetUSEast1e"}]
+			}
+		},
+		"ProdPublicSubnetUSEast1e":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPublicSubnetUSEast1eCIDRBlock" },
+				"AvailabilityZone": "us-east-1e",
+				"Tags": [{"Key":"Name", "Value":"ProdPublicSubnetUSEast1e"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetUSEast1e":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"CidrBlock": { "Ref": "TestPrivateSubnetUSEast1eCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"TestPrivateSubnetUSEast1e"}]
+			}
+		},
+		"ProdPrivateSubnetUSEast1e":{
+			"Type": "AWS::EC2::Subnet",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"CidrBlock": { "Ref": "ProdPrivateSubnetUSEast1eCIDRBlock" },
+				"AvailabilityZone": "us-east-1a",
+				"Tags": [{"Key":"Name", "Value":"ProdPrivateSubnetUSEast1e"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntInternetGatewayUSEast1": {
+			"Type": "AWS::EC2::InternetGateway",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"Tags": [ {"Key":"Name", "Value": "IntInternetGatewayUSEast1"}]
+			}
+		},
+		"TestInternetGatewayUSEast1": {
+			"Type": "AWS::EC2::InternetGateway",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"Tags": [ {"Key":"Name", "Value": "TestInternetGatewayUSEast1"}]
+			}
+		},
+		"ProdInternetGatewayUSEast1": {
+			"Type": "AWS::EC2::InternetGateway",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"Tags": [ {"Key":"Name", "Value": "ProdInternetGatewayUSEast1"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"IntVPCGatewayAttachmentUSEast1": {
+			"Type": "AWS::EC2::VPCGatewayAttachment",
+			"Condition": "USEast1AndIntEnv",
+			"Properties":{
+				"VpcId": {"Ref": "IntVPCUSEast1" },
+				"InternetGatewayId": {"Ref": "IntInternetGatewayUSEast1"}
+			}
+		},
+		"TestVPCGatewayAttachmentUSEast1": {
+			"Type": "AWS::EC2::VPCGatewayAttachment",
+			"Condition": "USEast1AndTestEnv",
+			"Properties":{
+				"VpcId": {"Ref": "TestVPCUSEast1" },
+				"InternetGatewayId": {"Ref": "TestInternetGatewayUSEast1"}
+			}
+		},
+		"ProdVPCGatewayAttachmentUSEast1": {
+			"Type": "AWS::EC2::VPCGatewayAttachment",
+			"Condition": "USEast1AndProdEnv",
+			"Properties":{
+				"VpcId": {"Ref": "ProdVPCUSEast1" },
+				"InternetGatewayId": {"Ref": "ProdInternetGatewayUSEast1"}
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntPublicRouteTableUSEast1": {
+			"Type": "AWS::EC2::RouteTable",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": { "Ref": "IntVPCUSEast1" },
+				"Tags": [{"Key":"Name", "Value": "IntPublicRouteTableUSEast1"}]
+			}
+		},
+		"TestPublicRouteTableUSEast1": {
+			"Type": "AWS::EC2::RouteTable",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"Tags": [{"Key":"Name", "Value": "TestPublicRouteTableUSEast1"}]
+			}
+		},
+		"ProdPublicRouteTableUSEast1": {
+			"Type": "AWS::EC2::RouteTable",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"Tags": [{"Key":"Name", "Value": "ProdPublicRouteTableUSEast1"}]
+			}
+		},
+
+
+
+
+
+
+
+		"TestPrivateRouteTableUSEast1": {
+			"Type": "AWS::EC2::RouteTable",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": { "Ref": "TestVPCUSEast1" },
+				"Tags": [{"Key":"Name", "Value": "TestPrivateRouteTableUSEast1"}]
+			}
+		},
+		"ProdPrivateRouteTableUSEast1": {
+			"Type": "AWS::EC2::RouteTable",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": { "Ref": "ProdVPCUSEast1" },
+				"Tags": [{"Key":"Name", "Value": "ProdPrivateRouteTableUSEast1"}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+		"IntPublicRouteUSEast1": {
+			"Type": "AWS::EC2::Route",
+			"Condition": "USEast1AndIntEnv",
+			"DependsOn": "IntVPCGatewayAttachmentUSEast1",
+			"Properties": {
+				"RouteTableId": {"Ref": "IntPublicRouteTableUSEast1"},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": {"Ref": "IntInternetGatewayUSEast1"}
+			}
+		},
+		"TestPublicRouteUSEast1": {
+			"Type": "AWS::EC2::Route",
+			"Condition": "USEast1AndTestEnv",
+			"DependsOn": "TestVPCGatewayAttachmentUSEast1",
+			"Properties": {
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": {"Ref": "TestInternetGatewayUSEast1"}
+			}
+		},
+		"ProdPublicRouteUSEast1": {
+			"Type": "AWS::EC2::Route",
+			"Condition": "USEast1AndProdEnv",
+			"DependsOn": "ProdVPCGatewayAttachmentUSEast1",
+			"Properties": {
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": {"Ref": "ProdInternetGatewayUSEast1"}
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+		"IntPublicSubnetRouteTableAssociationUSEast1a": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "IntPublicSubnetUSEast1a"},
+				"RouteTableId": {"Ref": "IntPublicRouteTableUSEast1"}
+				}
+		},
+		"TestPublicSubnetRouteTableAssociationUSEast1a": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPublicSubnetUSEast1a"},
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"}
+				}
+		},
+		"ProdPublicSubnetRouteTableAssociationUSEast1a": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPublicSubnetUSEast1a"},
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+		"IntPublicSubnetRouteTableAssociationUSEast1b": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "IntPublicSubnetUSEast1b"},
+				"RouteTableId": {"Ref": "IntPublicRouteTableUSEast1"}
+				}
+		},
+		"TestPublicSubnetRouteTableAssociationUSEast1b": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPublicSubnetUSEast1b"},
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"}
+				}
+		},
+		"ProdPublicSubnetRouteTableAssociationUSEast1b": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPublicSubnetUSEast1b"},
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+		"TestPublicSubnetRouteTableAssociationUSEast1c": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPublicSubnetUSEast1c"},
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"}
+				}
+		},
+		"ProdPublicSubnetRouteTableAssociationUSEast1c": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPublicSubnetUSEast1c"},
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+		"TestPublicSubnetRouteTableAssociationUSEast1d": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPublicSubnetUSEast1d"},
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"}
+				}
+		},
+		"ProdPublicSubnetRouteTableAssociationUSEast1d": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPublicSubnetUSEast1d"},
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"TestPublicSubnetRouteTableAssociationUSEast1e": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPublicSubnetUSEast1e"},
+				"RouteTableId": {"Ref": "TestPublicRouteTableUSEast1"}
+				}
+		},
+		"ProdPublicSubnetRouteTableAssociationUSEast1e": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPublicSubnetUSEast1e"},
+				"RouteTableId": {"Ref": "ProdPublicRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetRouteTableAssociationUSEast1a": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPrivateSubnetUSEast1a"},
+				"RouteTableId": {"Ref": "TestPrivateRouteTableUSEast1"}
+				}
+		},
+		"ProdPrivateSubnetRouteTableAssociationUSEast1a": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1a"},
+				"RouteTableId": {"Ref": "ProdPrivateRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetRouteTableAssociationUSEast1b": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPrivateSubnetUSEast1b"},
+				"RouteTableId": {"Ref": "TestPrivateRouteTableUSEast1"}
+				}
+		},
+		"ProdPrivateSubnetRouteTableAssociationUSEast1b": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1b"},
+				"RouteTableId": {"Ref": "ProdPrivateRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+		"TestPrivateSubnetRouteTableAssociationUSEast1c": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPrivateSubnetUSEast1c"},
+				"RouteTableId": {"Ref": "TestPrivateRouteTableUSEast1"}
+				}
+		},
+		"ProdPrivateSubnetRouteTableAssociationUSEast1c": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1c"},
+				"RouteTableId": {"Ref": "ProdPrivateRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetRouteTableAssociationUSEast1d": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPrivateSubnetUSEast1d"},
+				"RouteTableId": {"Ref": "TestPrivateRouteTableUSEast1"}
+				}
+		},
+		"ProdPrivateSubnetRouteTableAssociationUSEast1d": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1d"},
+				"RouteTableId": {"Ref": "ProdPrivateRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+		"TestPrivateSubnetRouteTableAssociationUSEast1e": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "TestPrivateSubnetUSEast1e"},
+				"RouteTableId": {"Ref": "TestPrivateRouteTableUSEast1"}
+				}
+		},
+		"ProdPrivateSubnetRouteTableAssociationUSEast1e": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1e"},
+				"RouteTableId": {"Ref": "ProdPrivateRouteTableUSEast1"}
+				}
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": {"Ref": "IntVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"IntProjectTrackerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "IntSSHLocationParameter"}
+					}
+				]
+			}
+		},
+		"TestProjectTrackerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": {"Ref": "TestVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"TestProjectTrackerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "TestSSHLocationParameter"}
+					}
+				]
+			}
+		},
+		"ProdProjectTrackerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": {"Ref": "ProdVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"ProdProjectTrackerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "ProdSSHLocationParameter"}
+					}
+				]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": {"Ref": "IntVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"IntApiCreatorPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "IntSSHLocationParameter"}
+					}
+				]
+			}
+
+		},
+		"TestApiCreatorPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": {"Ref": "TestVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"TestApiCreatorPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "TestSSHLocationParameter"}
+					}
+				]
+			}
+
+		},
+		"ProdApiCreatorPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": {"Ref": "ProdVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP and SSH traffic",
+				"Tags": [{"Key":"Name", "Value":"ProdApiCreatorPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": {"Ref": "ProdSSHLocationParameter"}
+					}
+				]
+			}
+
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestMongoDBPrivateSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": {"Ref": "TestVPCUSEast1"},
+			"GroupDescription": "Allow access from HTTP and SSH traffic",
+			"Tags": [{"Key":"Name", "Value":"TestMongoDBPrivateSecurityGroupUSEast1"}]
+			}
+
+		},
+		"ProdMongoDBPrivateSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": {"Ref": "ProdVPCUSEast1"},
+			"GroupDescription": "Allow access from HTTP and SSH traffic",
+			"Tags": [{"Key":"Name", "Value":"ProdMongoDBPrivateSecurityGroupUSEast1"}]
+			}
+
+		},
+
+
+
+
+
+
+		"IntProjectTrackerLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": {"Ref": "IntVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"IntProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+		"TestProjectTrackerLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": {"Ref": "TestVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"TestProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+		"ProdProjectTrackerLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": {"Ref": "ProdVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"ProdProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+
+
+
+
+
+		"IntApiCreatorLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"VpcId": {"Ref": "IntVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"IntApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+		"TestApiCreatorLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"VpcId": {"Ref": "TestVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"TestApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+		"ProdApiCreatorLoadBalancerPublicSecurityGroupUSEast1": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"VpcId": {"Ref": "ProdVPCUSEast1"},
+				"GroupDescription": "Allow access from HTTP traffic",
+				"Tags": [{"Key":"Name", "Value":"ProdApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+				"SecurityGroupIngress": [
+					{
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+					}
+				]
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["IntProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"IntProjectTrackerPublicSecurityGroupUSEast1"}
+			}
+		},
+		"TestProjectTrackerSecurityGroupIngressSSH": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"TestProjectTrackerPublicSecurityGroupUSEast1"}
+			}
+		},
+		"ProdProjectTrackerSecurityGroupIngressSSH": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"ProdProjectTrackerPublicSecurityGroupUSEast1"}
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["IntApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"IntApiCreatorPublicSecurityGroupUSEast1"}
+			}
+		},
+		"TestApiCreatorSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"TestApiCreatorPublicSecurityGroupUSEast1"}
+			}
+		},
+		"ProdApiCreatorSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"ProdApiCreatorPublicSecurityGroupUSEast1"}
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+		"TestMongoDBSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"TestMongoDBPrivateSecurityGroupUSEast1"}
+			}
+		},
+		"ProdMongoDBSecurityGroupIngressSSHUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "22",
+				"ToPort": "22",
+				"SourceSecurityGroupId": {"Ref":"ProdMongoDBPrivateSecurityGroupUSEast1"}
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"TestMongoDBSecurityGroupIngressApiCreatorMongoPortUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "27017",
+				"ToPort": "27017",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["TestApiCreatorPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"ProdMongoDBSecurityGroupIngressApiCreatorMongoPortUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "27017",
+				"ToPort": "27017",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["ProdApiCreatorPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+
+
+
+
+
+		"IntProjectTrackerPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["IntProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "8080",
+				"ToPort": "8080",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["IntProjectTrackerLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"TestProjectTrackerPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "8080",
+				"ToPort": "8080",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["TestProjectTrackerLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"ProdProjectTrackerPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "8080",
+				"ToPort": "8080",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["ProdProjectTrackerLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+
+
+
+
+
+
+
+		"IntApiCreatorPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndIntEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["IntApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "3000",
+				"ToPort": "3000",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["IntApiCreatorLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"TestApiCreatorPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "3000",
+				"ToPort": "3000",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["TestApiCreatorLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"ProdApiCreatorPublicSecurityGroupUSEast1IngressELBUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdApiCreatorPublicSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "3000",
+				"ToPort": "3000",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["ProdApiCreatorLoadBalancerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+
+
+
+
+
+
+
+		"TestMongoDBSecurityGroupIngressProjectTrackerMongoPortUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndTestEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["TestMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "27017",
+				"ToPort": "27017",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["TestProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+		"ProdMongoDBSecurityGroupIngressProjectTrackerMongoPortUSEast1": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Condition": "USEast1AndProdEnv",
+			"Properties": {
+				"GroupId": {"Fn::GetAtt": ["ProdMongoDBPrivateSecurityGroupUSEast1", "GroupId"]},
+				"IpProtocol": "tcp",
+				"FromPort": "27017",
+				"ToPort": "27017",
+				"SourceSecurityGroupId": {
+				"Fn::GetAtt": ["ProdProjectTrackerPublicSecurityGroupUSEast1", "GroupId"]}
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b"],
+				"VPCZoneIdentifier": [{"Ref":"IntPublicSubnetUSEast1a"},{"Ref":"IntPublicSubnetUSEast1b"}],
+				"LaunchConfigurationName" : { "Ref" : "IntProjectTrackerLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "IntProjectTrackerElasticLoadBalancerUSEast1" } ],
+				"Tags": [{"Key":"Name", "Value":"IntProjectTrackerAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+		"TestProjectTrackerAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b","us-east-1c","us-east-1d","us-east-1e"],
+				"VPCZoneIdentifier": [{"Ref":"TestPublicSubnetUSEast1a"},{"Ref":"TestPublicSubnetUSEast1b"},{"Ref":"TestPublicSubnetUSEast1c"},{"Ref":"TestPublicSubnetUSEast1d"},{"Ref":"TestPublicSubnetUSEast1e"}],
+				"LaunchConfigurationName" : { "Ref" : "TestProjectTrackerLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "TestProjectTrackerElasticLoadBalancerUSEast1" } ],
+				"Tags": [{"Key":"Name", "Value":"TestProjectTrackerAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+		"ProdProjectTrackerAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b","us-east-1c","us-east-1d","us-east-1e"],
+				"VPCZoneIdentifier": [{"Ref":"ProdPublicSubnetUSEast1a"},{"Ref":"ProdPublicSubnetUSEast1b"},{"Ref":"ProdPublicSubnetUSEast1c"},{"Ref":"ProdPublicSubnetUSEast1d"},{"Ref":"ProdPublicSubnetUSEast1e"}],
+				"LaunchConfigurationName" : { "Ref" : "ProdProjectTrackerLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "ProdProjectTrackerElasticLoadBalancerUSEast1" } ],
+				"Tags": [{"Key":"Name", "Value":"ProdProjectTrackerAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndIntEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b"],
+				"VPCZoneIdentifier": [{"Ref":"IntPublicSubnetUSEast1a"},{"Ref":"IntPublicSubnetUSEast1b"}],
+				"LaunchConfigurationName" : { "Ref" : "IntApiCreatorLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "IntApiCreatorElasticLoadBalancerUSEast1"} ],
+				"Tags": [{"Key":"Name", "Value":"IntApiCreatorAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+		"TestApiCreatorAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndTestEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b","us-east-1c","us-east-1d","us-east-1e"],
+				"VPCZoneIdentifier": [{"Ref":"TestPublicSubnetUSEast1a"},{"Ref":"TestPublicSubnetUSEast1b"},{"Ref":"TestPublicSubnetUSEast1c"},{"Ref":"TestPublicSubnetUSEast1d"},{"Ref":"TestPublicSubnetUSEast1e"}],
+				"LaunchConfigurationName" : { "Ref" : "TestApiCreatorLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "TestApiCreatorElasticLoadBalancerUSEast1"} ],
+				"Tags": [{"Key":"Name", "Value":"TestApiCreatorAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+		"ProdApiCreatorAutoScalingGroupUSEast1" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Condition": "USEast1AndProdEnv",
+			"Properties" : {
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"AvailabilityZones" : ["us-east-1a","us-east-1b","us-east-1c","us-east-1d","us-east-1e"],
+				"VPCZoneIdentifier": [{"Ref":"ProdPublicSubnetUSEast1a"},{"Ref":"ProdPublicSubnetUSEast1b"},{"Ref":"ProdPublicSubnetUSEast1c"},{"Ref":"ProdPublicSubnetUSEast1d"},{"Ref":"ProdPublicSubnetUSEast1e"}],
+				"LaunchConfigurationName" : { "Ref" : "ProdApiCreatorLaunchConfigUSEast1" },
+				"MinSize" : "1",
+				"MaxSize" : "5",
+				"LoadBalancerNames" : [ { "Ref" : "ProdApiCreatorElasticLoadBalancerUSEast1"} ],
+				"Tags": [{"Key":"Name", "Value":"ProdApiCreatorAutoScalingGroupUSEast1","PropagateAtLaunch": true}]
+			}
+		},
+
+
+
+
+
+
+
+
+		"IntProjectTrackerLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndIntEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "IntKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "IntInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "IntProjectTrackerPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "IntInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "IntVPCGatewayAttachmentUSEast1"
+		},
+		"TestProjectTrackerLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndTestEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "TestKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "TestInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "TestProjectTrackerPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "TestInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "TestVPCGatewayAttachmentUSEast1"
+		},
+		"ProdProjectTrackerLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndProdEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "ProdKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "ProdInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "ProdProjectTrackerPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "ProdInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "ProdVPCGatewayAttachmentUSEast1"
+		},
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndIntEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "IntKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "IntInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "IntApiCreatorPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "IntInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "IntVPCGatewayAttachmentUSEast1"
+		},
+		"TestApiCreatorLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndTestEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "TestKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "TestInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "TestApiCreatorPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "TestInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "TestVPCGatewayAttachmentUSEast1"
+		},
+		"ProdApiCreatorLaunchConfigUSEast1" : {
+			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"Condition": "USEast1AndProdEnv",
+			"Properties" : {
+				"KeyName" : { "Ref" : "ProdKeyNameParameter" },
+				"AssociatePublicIpAddress": true,
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "ProdInstanceTypeParameter" }, "Arch" ] } ] },
+				"SecurityGroups" : [ { "Ref" : "ProdApiCreatorPublicSecurityGroupUSEast1" } ],
+				"InstanceType" : { "Ref" : "ProdInstanceTypeParameter" },
+				"BlockDeviceMappings" : [
+						{
+						"DeviceName" : "/dev/xvda",
+						"Ebs" : { "VolumeSize" : "10", "VolumeType" : "io1", "Iops" : 240, "DeleteOnTermination": true } 
+						}
+					]
+			},
+			"DependsOn": "ProdVPCGatewayAttachmentUSEast1"
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "IntProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+		"TestProjectTrackerAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "TestProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+		"ProdProjectTrackerAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "ProdProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "IntApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+		"TestApiCreatorAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "TestApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+		"ProdApiCreatorAutoScalingScaleUpPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "ProdApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "1"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "IntProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+		"TestProjectTrackerAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "TestProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+		"ProdProjectTrackerAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "ProdProjectTrackerAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "IntApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+		"TestApiCreatorAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "TestApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+		"ProdApiCreatorAutoScalingScaleDownPolicyUSEast1" : {
+		  "Type" : "AWS::AutoScaling::ScalingPolicy",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+			"AdjustmentType" : "ChangeInCapacity",
+			"AutoScalingGroupName" : { "Ref" : "ProdApiCreatorAutoScalingGroupUSEast1" },
+			"Cooldown" : "600",
+			"ScalingAdjustment" : "-1"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndIntEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "IntProjectTrackerAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "IntProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+		"TestProjectTrackerCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndTestEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "TestProjectTrackerAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "TestProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+		"ProdProjectTrackerCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndProdEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "ProdProjectTrackerAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "ProdProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndIntEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "IntApiCreatorAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "IntApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+		"TestApiCreatorCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndTestEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "TestApiCreatorAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "TestApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+		"ProdApiCreatorCPUAlarmHighUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndProdEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-up if CPU >= 70% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "70",
+			"AlarmActions": [ { "Ref": "ProdApiCreatorAutoScalingScaleUpPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "ProdApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "GreaterThanOrEqualToThreshold"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndIntEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "IntProjectTrackerAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "IntProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+		"TestProjectTrackerCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndTestEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "TestProjectTrackerAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "TestProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+		"ProdProjectTrackerCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndProdEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "ProdProjectTrackerAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "ProdProjectTrackerAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndIntEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "IntApiCreatorAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "IntApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+		"TestApiCreatorCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndTestEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "TestApiCreatorAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "TestApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+		"ProdApiCreatorCPUAlarmLowUSEast1": {
+		 "Type": "AWS::CloudWatch::Alarm",
+		 "Condition": "USEast1AndProdEnv",
+		 "Properties": {
+			"AlarmDescription": "Scale-down if CPU <= 30% for 5 minutes",
+			"MetricName": "CPUUtilization",
+			"Namespace": "AWS/EC2",
+			"Statistic": "Average",
+			"Period": "300",
+			"EvaluationPeriods": "1",
+			"Threshold": "30",
+			"AlarmActions": [ { "Ref": "ProdApiCreatorAutoScalingScaleDownPolicyUSEast1" } ],
+			"Dimensions": [
+			  {
+				"Name": "AutoScalingGroupName",
+				"Value": { "Ref": "ProdApiCreatorAutoScalingGroupUSEast1" }
+			  }
+			],
+			"ComparisonOperator": "LessThanOrEqualToThreshold"
+		  }
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntProjectTrackerElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "IntProjectTrackerELBUSEast1",
+			"Subnets": [{"Ref":"IntPublicSubnetUSEast1a"},{"Ref":"IntPublicSubnetUSEast1b"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"IntProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "8080",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "IntVPCGatewayAttachmentUSEast1"
+		},
+		"TestProjectTrackerElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "TestProjectTrackerELBUSEast1",
+			"Subnets": [{"Ref":"TestPublicSubnetUSEast1a"},{"Ref":"TestPublicSubnetUSEast1b"},{"Ref":"TestPublicSubnetUSEast1c"},{"Ref":"TestPublicSubnetUSEast1d"},{"Ref":"TestPublicSubnetUSEast1e"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"TestProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "8080",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "TestVPCGatewayAttachmentUSEast1"
+		},
+		"ProdProjectTrackerElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "ProdProjectTrackerELBUSEast1",
+			"Subnets": [{"Ref":"ProdPublicSubnetUSEast1a"},{"Ref":"ProdPublicSubnetUSEast1b"},{"Ref":"ProdPublicSubnetUSEast1c"},{"Ref":"ProdPublicSubnetUSEast1d"},{"Ref":"ProdPublicSubnetUSEast1e"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"ProdProjectTrackerLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "8080",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "ProdVPCGatewayAttachmentUSEast1"
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		"IntApiCreatorElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndIntEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "IntApiCreatorELBUSEast1",
+			"Subnets": [{"Ref":"IntPublicSubnetUSEast1a"},{"Ref":"IntPublicSubnetUSEast1b"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"IntApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "3000",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "IntVPCGatewayAttachmentUSEast1"
+		},
+		"TestApiCreatorElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndTestEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "TestApiCreatorELBUSEast1",
+			"Subnets": [{"Ref":"TestPublicSubnetUSEast1a"},{"Ref":"TestPublicSubnetUSEast1b"},{"Ref":"TestPublicSubnetUSEast1c"},{"Ref":"TestPublicSubnetUSEast1d"},{"Ref":"TestPublicSubnetUSEast1e"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"TestApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "3000",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "TestVPCGatewayAttachmentUSEast1"
+		},
+		"ProdApiCreatorElasticLoadBalancerUSEast1" : {
+		  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+		  "Condition": "USEast1AndProdEnv",
+		  "Properties" : {
+		  	"LoadBalancerName": "ProdApiCreatorELBUSEast1",
+			"Subnets": [{"Ref":"ProdPublicSubnetUSEast1a"},{"Ref":"ProdPublicSubnetUSEast1b"},{"Ref":"ProdPublicSubnetUSEast1c"},{"Ref":"ProdPublicSubnetUSEast1d"},{"Ref":"ProdPublicSubnetUSEast1e"}],
+			"CrossZone" : "true",
+			"SecurityGroups": [{"Ref":"ProdApiCreatorLoadBalancerPublicSecurityGroupUSEast1"}],
+			"Listeners" : [ {
+			  "LoadBalancerPort" : "80",
+			  "InstancePort" : "3000",
+			  "Protocol" : "HTTP"
+			} ],
+			"HealthCheck" : {
+			  "Target" : "TCP:22",
+			  "HealthyThreshold" : "3",
+			  "UnhealthyThreshold" : "3",
+			  "Interval" : "30",
+			  "Timeout" : "5"
+			}
+		  },
+		  "DependsOn": "ProdVPCGatewayAttachmentUSEast1"
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+		"TestMongoDBInstanceUSEast1":{
+			"Type": "AWS::EC2::Instance",
+		  	"Condition": "USEast1AndTestEnv",
+	  		"Properties": {
+				"InstanceType": {"Ref": "TestInstanceTypeParameter"},
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "TestInstanceTypeParameter" }, "Arch" ] } ] },
+				"KeyName": { "Ref": "TestKeyNameParameter"},
+				"NetworkInterfaces": [
+					{
+						"GroupSet": [{"Ref": "TestMongoDBPrivateSecurityGroupUSEast1"}],
+						"AssociatePublicIpAddress": "true",
+						"DeviceIndex": "0",
+						"DeleteOnTermination": "true",
+						"SubnetId": {"Ref": "TestPrivateSubnetUSEast1a"}
+					}
+				],
+				"Tags": [{"Key":"Name", "Value":{"Ref": "TestMongoInstanceNameParameter"}}]
+			}
+		},
+		"PRodMongoDBInstanceUSEast1":{
+			"Type": "AWS::EC2::Instance",
+			"Condition": "USEast1AndProdEnv",
+	  		"Properties": {
+				"InstanceType": {"Ref": "ProdInstanceTypeParameter"},
+				"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+											  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "ProdInstanceTypeParameter" }, "Arch" ] } ] },
+				"KeyName": { "Ref": "ProdKeyNameParameter"},
+				"NetworkInterfaces": [
+					{
+						"GroupSet": [{"Ref": "ProdMongoDBPrivateSecurityGroupUSEast1"}],
+						"AssociatePublicIpAddress": "true",
+						"DeviceIndex": "0",
+						"DeleteOnTermination": "true",
+						"SubnetId": {"Ref": "ProdPrivateSubnetUSEast1a"}
+					}
+				],
+				"Tags": [{"Key":"Name", "Value":{"Ref": "ProdMongoInstanceNameParameter"}}]
+			}
+		}
+
+
+
+
+
+
+
+	},
+	"Outputs": {
+		"IntVPCUSEast1": {
+			"Description": "VPC ID created in US EAST 1 for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value": { "Ref" : "IntVPCUSEast1" }
+		},
+		"TestVPCUSEast1": {
+			"Description": "VPC ID created in US EAST 1 for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value": { "Ref" : "TestVPCUSEast1" }
+		},
+		"ProdVPCUSEast1": {
+			"Description": "VPC ID created in US EAST 1 for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value": { "Ref" : "ProdVPCUSEast1" }
+		},
+
+
+
+
+		"IntProjectTrackerPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntProjectTrackerPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+		"TestProjectTrackerPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestProjectTrackerPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+		"ProdProjectTrackerPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdProjectTrackerPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+
+
+
+
+		"IntApiCreatorPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntApiCreatorPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+		"TestApiCreatorPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestApiCreatorPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+		"ProdApiCreatorPublicSecurityGroupUSEast1": {
+			"Description": "Public Security Group Id for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdApiCreatorPublicSecurityGroupUSEast1", "GroupId" ] }
+		},
+
+
+
+
+
+
+
+
+		"TestMongoDBPrivateSecurityGroupUSEast1": {
+			"Description": "Private Security Group Id for PROD",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestMongoDBPrivateSecurityGroupUSEast1", "GroupId" ] }
+		},
+
+		"ProdMongoDBPrivateSecurityGroupUSEast1": {
+			"Description": "Private Security Group Id for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdMongoDBPrivateSecurityGroupUSEast1", "GroupId" ] }
+		},
+
+
+
+
+
+		"IntProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntProjectTrackerElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+		"TestProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestProjectTrackerElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+		"ProdProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdProjectTrackerElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+
+
+
+
+
+		"IntApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntApiCreatorElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+		"TestApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestApiCreatorElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+		"ProdApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "Public Security Group Id for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdApiCreatorElasticLoadBalancerUSEast1", "GroupId" ] }
+		},
+
+
+
+
+
+
+
+		"IntProjectTrackerAutoScalingGroupUSEast1": {
+			"Description": "ProjectTracker ASG for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Ref": "IntProjectTrackerAutoScalingGroupUSEast1" }
+		},
+		"TestProjectTrackerAutoScalingGroupUSEast1": {
+			"Description": "ProjectTracker ASG for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Ref": "TestProjectTrackerAutoScalingGroupUSEast1" }
+		},
+		"ProdProjectTrackerAutoScalingGroupUSEast1": {
+			"Description": "ProjectTracker ASG for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Ref": "ProdProjectTrackerAutoScalingGroupUSEast1" }
+		},
+
+
+
+
+
+
+		"IntApiCreatorAutoScalingGroupUSEast1": {
+			"Description": "ApiCreator ASG for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Ref": "IntApiCreatorAutoScalingGroupUSEast1" }
+		},
+		"TestApiCreatorAutoScalingGroupUSEast1": {
+			"Description": "ApiCreator ASG for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Ref": "TestApiCreatorAutoScalingGroupUSEast1" }
+		},
+		"ProdApiCreatorAutoScalingGroupUSEast1": {
+			"Description": "ApiCreator ASG for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Ref": "ProdApiCreatorAutoScalingGroupUSEast1" }
+		},
+
+
+
+		"IntProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "ProjectTracker ELB DNSName for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntProjectTrackerElasticLoadBalancerUSEast1", "DNSName" ] }
+		},
+		"TestProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "ProjectTracker ELB DNSName for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestProjectTrackerElasticLoadBalancerUSEast1", "DNSName" ] }
+		},
+		"ProdProjectTrackerElasticLoadBalancerUSEast1": {
+			"Description": "ProjectTracker ELB DNSName for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdProjectTrackerElasticLoadBalancerUSEast1", "DNSName" ] }
+		},
+
+
+
+		"IntApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "ApiCreator ELB DNSName for INT",
+			"Condition": "USEast1AndIntEnv",
+			"Value" : { "Fn::GetAtt" : [ "IntApiCreatorElasticLoadBalancerUSEast1", "DNSName" ] }
+		},
+		"TestApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "ApiCreator ELB DNSName for TEST",
+			"Condition": "USEast1AndTestEnv",
+			"Value" : { "Fn::GetAtt" : [ "TestApiCreatorElasticLoadBalancerUSEast1", "DNSName" ] }
+		},
+		"ProdApiCreatorElasticLoadBalancerUSEast1": {
+			"Description": "ApiCreator ELB DNSName for PROD",
+			"Condition": "USEast1AndProdEnv",
+			"Value" : { "Fn::GetAtt" : [ "ProdApiCreatorElasticLoadBalancerUSEast1", "DNSName" ] }
+		}
+
+
+	}
+}

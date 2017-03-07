@@ -1,0 +1,21 @@
+{
+      "ProdVPCNameUSEast1": "ProdVPC",
+      "ProdVPCCIDRBlockUSEast1": "12.0.0.0/16",
+      "EnvironmentParameter": "prod",
+      "ProdInstanceTypeParameter": "c4.large",
+      "ProdKeyNameParameter": "17minds",
+      "ProdSSHLocationParameter": "0.0.0.0/0",
+      "ProdProjectTrackerInstanceNameParameter": "ProdEnvProjecTracker",
+      "ProdApiCreatorInstanceNameParameter": "ProdEnvApiCreator",
+      "ProdPublicSubnetUSEast1aCIDRBlock": "12.0.0.0/22",
+      "ProdPrivateSubnetUSEast1aCIDRBlock": "12.0.4.0/22",
+      "ProdPublicSubnetUSEast1bCIDRBlock": "12.0.8.0/22",
+      "ProdPrivateSubnetUSEast1bCIDRBlock": "12.0.12.0/22",
+      "ProdPublicSubnetUSEast1cCIDRBlock": "12.0.16.0/22",
+      "ProdPrivateSubnetUSEast1cCIDRBlock": "12.0.20.0/22",
+      "ProdPublicSubnetUSEast1dCIDRBlock": "12.0.24.0/22",
+      "ProdPrivateSubnetUSEast1dCIDRBlock": "12.0.28.0/22",
+      "ProdPublicSubnetUSEast1eCIDRBlock": "12.0.32.0/22",
+      "ProdPrivateSubnetUSEast1eCIDRBlock": "12.0.36.0/22",
+      "ProdMongoInstanceNameParameter": "ProdEnvMongo"
+}
